@@ -1,80 +1,75 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { Post, Prisma } from '@prisma/client';
-import { PostQuery } from './query/post.query';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { PostRepository } from '../../../../../libs/repositories/post-repository/src';
+import { DEFAULT_AMOUNT, PostsError } from './post.constant';
+import { CreatePostContentDto, UpdatePostContentDto } from '@project/shared/shared-dto';
+import { TypeEntityAdapter } from './utils/entity-adapter';
+import { PostStatus } from '@prisma/client';
+import { getDate } from './utils/helpers';
 
 @Injectable()
 export class PostService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly postRepository: PostRepository,
+  ) { }
 
-  async post (
-    postWhereUniqueInput: Prisma.PostWhereUniqueInput,
-  ): Promise<Post | null> {
-    return this.prisma.post.findUnique({
-      where: postWhereUniqueInput,
-    });
+  public async create(dto: CreatePostContentDto, userId: string) {
+    const post = {
+      ...dto,
+      _userId: userId,
+      createdDate: getDate(),
+      postedDate: getDate(),
+      status: PostStatus.published,
+      likesCount: DEFAULT_AMOUNT,
+      commentsCount: DEFAULT_AMOUNT,
+      isReposted: false,
+    };
+    const postEntity = await new TypeEntityAdapter[post.type](post);
+    return this.postRepository.create(postEntity);
   }
 
-  async posts (params: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.PostWhereUniqueInput;
-    where?: Prisma.PostWhereInput;
-    orderBy?: Prisma.PostOrderByWithRelationInput;
-  }): Promise<Post[]> {
-    const { skip, take, cursor, where, orderBy } = params;
-    return this.prisma.post.findMany({
-      skip,
-      take,
-      cursor,
-      where,
-      orderBy
-    });
+  public async update(postId: number, dto: UpdatePostContentDto, userId: string) {
+    const post = await this.findByPostId(postId);
+    if (userId !== post._userId) {
+      throw new BadRequestException(PostsError.NotUserAuthor)
+    }
+    const updatedPost = { ...post, ...dto, postedDate: getDate() }
+    const postEntity = await new TypeEntityAdapter[updatedPost.type](updatedPost);
+    return this.postRepository.update(postId, postEntity);
   }
 
-  public async createPost(data: Prisma.PostCreateInput): Promise<Post> {
-    return this.prisma.post.create({
-      data,
-    });
+  public async findByPostId(id: number) {
+    const post = await this.postRepository.findById(id);
+    if (!post) {
+      throw new NotFoundException(PostsError.PostNotFound);
+    }
+    return post;
   }
 
-  public async updatePost(params: {
-    where: Prisma.PostWhereUniqueInput;
-    data: Prisma.PostUpdateInput;
-  }): Promise<Post> {
-    const { data, where } = params;
-    return this.prisma.post.update({
-      data,
-      where,
-    });
+  public async repost(id: number, userId: string) {
+    const originalPost = await this.findByPostId(id);
+    const isAlreadyReposted = await this.postRepository.findRepost(id, userId)
+    if (isAlreadyReposted) {
+      throw new BadRequestException(PostsError.AlreadyReposted)
+    }
+    const post = {
+      ...originalPost as CreatePostContentDto,
+      isReposted: true,
+      _userId: userId,
+      _originUserId: originalPost._userId,
+      _originId: originalPost._id,
+      postedDate: getDate(),
+      likesCount: DEFAULT_AMOUNT,
+      commentsCount: DEFAULT_AMOUNT,
+    };
+    const postEntity = await new TypeEntityAdapter[post.type](post);
+    return this.postRepository.create(postEntity);
   }
 
-  public async deletePost(id: number): Promise<void> {
-    await this.prisma.post.delete({
-      where: {
-        postId: id,
-      }
-    });
-  }
-
-  public async findById(id: number): Promise<Post | null> {
-    return this.prisma.post.findFirst({
-      where: {
-        postId: id,
-      },
-      include: {
-        comments: true
-      }
-    });
-  }
-
-  public find({limit, sortDirection, page}: PostQuery): Promise<Post[]> {
-    return this.prisma.post.findMany({
-      take: limit,
-      orderBy: [
-        { createAt: sortDirection }
-      ],
-      skip: page > 0 ? limit * (page - 1) : undefined,
-    });
+  public async remove(postId: number, userId: string) {
+    const post = await this.findByPostId(postId);
+    if (userId !== post._userId) {
+      throw new BadRequestException(PostsError.NotUserAuthor)
+    }
+    return this.postRepository.destroy(postId);
   }
 }

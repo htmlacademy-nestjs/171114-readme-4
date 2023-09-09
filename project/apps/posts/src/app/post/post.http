@@ -1,5 +1,5 @@
 # Create post
-POST http://localhost:3000/api/posts HTTP/1.1
+POST http://localhost:3001/api/posts HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRvcmFuc0BvdmVybG9vay5uZXQiLCJpZCI6IjY0OTA2MWE1OGZhNGIyZWVkZTJlZGE0ZCIsImlhdCI6MTY4Nzc5NTYxMywiZXhwIjoxNjg3OTY4NDEzfQ.oHuCNg3bL33T_WNiH8dSSpqk5_Qk9V0XrUXyGAi4nxE
 Content-Type: application/json
 
@@ -9,11 +9,11 @@ Content-Type: application/json
   "author": "3",
   "status": "published",
   "likesCount": 25,
-  "repost": false,
+  "isReposted": false,
   "originAuthor": "",
   "originId": "",
   "type": "photo",
-  "content": "/images/1.jpg"
+  "photo": "/images/1.jpg"
 }
 
 ###

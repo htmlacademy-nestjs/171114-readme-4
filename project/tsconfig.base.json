@@ -17,11 +17,19 @@
     "baseUrl": ".",
     "paths": {
       "@project/config": ["libs/config/src/index.ts"],
+      "@project/config/config-feeds": ["libs/config/config-feeds/src/index.ts"],
+      "@project/config/config-notify": [
+        "libs/config/config-notify/src/index.ts"
+      ],
+      "@project/config/config-posts": ["libs/config/config-posts/src/index.ts"],
       "@project/config/config-uploader": [
         "libs/config/config-uploader/src/index.ts"
       ],
       "@project/config/config-users": ["libs/config/config-users/src/index.ts"],
       "@project/models/posts-models": ["libs/models/posts-models/src/index.ts"],
+      "@project/repositories/file-repository": [
+        "libs/repositories/file-repository/src/index.ts"
+      ],
       "@project/repositories/post-repository": [
         "libs/repositories/post-repository/src/index.ts"
       ],
@@ -29,7 +37,11 @@
         "libs/repositories/user-repository/src/index.ts"
       ],
       "@project/shared/app-types": ["libs/shared/app-types/src/index.ts"],
+      "@project/shared/shared-dto": ["libs/shared/shared-dto/src/index.ts"],
       "@project/shared/shared-pipes": ["libs/shared/shared-pipes/src/index.ts"],
+      "@project/shared/shared-queries": [
+        "libs/shared/shared-queries/src/index.ts"
+      ],
       "@project/util/util-core": ["libs/util/util-core/src/index.ts"],
       "@project/util/util-types": ["libs/util/util-types/src/index.ts"]
     }

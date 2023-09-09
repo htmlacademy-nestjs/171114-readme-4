@@ -12,7 +12,6 @@ export class BlogUserEntity implements User {
   public followUsers: string[];
   public createdAt: Date;
   public updateAt: Date;
-  public likedPost: string[];
 
   constructor(blogUser: User) {
     this.fillEntity(blogUser);
@@ -24,7 +23,11 @@ export class BlogUserEntity implements User {
       email: this.email,
       name: this.name,
       avatar: this.avatar,
+      posts: this.posts,
       passwordHash: this.passwordHash,
+      followUsers: this.followUsers,
+      createdAt: this.createdAt,
+      updateAt: this.updateAt,
     };
   }
 
@@ -34,6 +37,7 @@ export class BlogUserEntity implements User {
     this.email = blogUser.email;
     this.name = blogUser.name;
     this.passwordHash = blogUser.passwordHash;
+    this.followUsers = blogUser.followUsers;
   }
 
   public async setPassword(password: string): Promise<BlogUserEntity> {

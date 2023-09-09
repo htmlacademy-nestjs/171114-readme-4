@@ -1,1 +1,2 @@
-export * from '../../../models/posts-models/src/lib/post.repository';
+export * from './lib/post-repository.module';
+export * from './lib/post.repository';

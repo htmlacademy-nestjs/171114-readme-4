@@ -11,5 +11,5 @@
     "src/**/*.spec.ts",
     "src/**/*.d.ts",
     "src/**/*.ts"
-, "src/app/post/post.service.ts"  ]
+, "src/app/post/post.service.ts", "../../libs/repositories/post-repository/src/lib/utils/adapt-prisma-post.ts", "../../libs/repositories/post-repository/src/lib/like.repository.ts", "../../libs/repositories/post-repository/src/lib/comment.repository.ts", "../../libs/util/util-core/src/lib/adapt-rdo-post.ts"  ]
 }

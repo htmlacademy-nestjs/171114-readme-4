@@ -1,104 +1,86 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { Comment } from '@project/shared/app-types';
-import { PostStatus, PostType } from '@prisma/client';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class PostRdo {
   @ApiProperty({
-    description: 'The uniq post ID',
-    example: '13'
+    description: 'Unique post  ID',
+    example: '1'
   })
-  @Expose({ name: '_id'})
-  public postId: number;
+  @Expose({ name: '_id' })
+  public id: string;
+
+    @ApiProperty({
+    description: 'Unique post  ID if reposted',
+    example: '1'
+  })
+  @Expose({ name: '_originId' })
+  public originId: string;
 
   @ApiProperty({
-    description: 'Title of the post',
-    example: 'Universe loves you'
-  })
-  @Expose()
-  public title: string;
-
-  @ApiProperty({
-    description: 'Tegs of the post',
-    example: ['#love', '#universe']
-  })
-  @Expose()
-  public tegs: string[];
-
-  @ApiProperty({
-    description: 'Author of the post',
-    example: '123'
+    description: 'Post type',
+    example: 'text'
   })
   @Expose()
-  public author: string;
+  public type: string;
 
   @ApiProperty({
-    description: 'Date of creation the post',
-    example: '2020-04-02T08:02:17-05:00'
+    description: 'post author ID',
+    example: '1'
+  })
+  @Expose({ name: '_userId' })
+  public userId: string;
+
+  @ApiProperty({
+    description: 'post author ID if reposted',
+    example: '1'
+  })
+  @Expose({ name: '_originUserId' })
+  public originUserId: string;
+
+  @ApiProperty({
+    description: 'Date post  was created',
   })
   @Expose()
-  public createAt: Date;
+  public createdDate: string;
 
   @ApiProperty({
-    description: 'Date of publication the post',
-    example: '2020-04-02T08:02:17-05:00'
+    description: 'Date post  was published',
   })
   @Expose()
-  public publishAt: Date;
+  public postedDate: string;
 
   @ApiProperty({
-    description: 'Status of the post, published or draft',
-    example: PostStatus.published
+    description: 'post status',
+    example: 'draft'
   })
   @Expose()
-  public status: PostStatus;
+  public status: string;
 
   @ApiProperty({
-    description: 'Count of likes of the post',
-    example: 25
+    description: 'Reposted status',
+    example: false
+  })
+  @Expose()
+  public isReposted: boolean;
+
+  @ApiProperty({
+    description: 'Total amount of likes',
+    example: '0'
   })
   @Expose()
   public likesCount: number;
 
   @ApiProperty({
-    description: 'Comments list of the post',
-    example: ['86']
+    description: 'Total amount of comments',
+    example: '0'
   })
   @Expose()
-  public comments: Comment[];
+  public commentsCount: number;
 
   @ApiProperty({
-    description: 'Post is reposted or not',
-    example: false
+    description: 'Tag list',
+    example: ['test']
   })
   @Expose()
-  public repost: boolean;
-
-  @ApiProperty({
-    description: 'Author indificator of origin post',
-    example: '98'
-  })
-  @Expose()
-  public originAuthor: string;
-
-  @ApiProperty({
-    description: 'Indificator of origin post',
-    example: '83'
-  })
-  @Expose()
-  public originId: string;
-
-  @ApiProperty({
-    description: 'Type of the post',
-    example: PostType.photo
-  })
-  @Expose()
-  public type: PostType;
-
-  @ApiProperty({
-    description: `Path to content file}`,
-    example: '/images/1.jpg'
-  })
-  @Expose()
-  public content: string;
+  public tags: string[];
 }

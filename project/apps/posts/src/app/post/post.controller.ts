@@ -1,67 +1,93 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Post,
-  Body,
-  Delete,
-  HttpStatus,
-  HttpCode,
-  Patch,
-  Query,
-} from '@nestjs/common';
+import { Body, Req, Controller, HttpStatus,
+  Param, Post, Delete, Patch, UseGuards } from '@nestjs/common';
 import { PostService } from './post.service';
+import { ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { API_TAG_NAME, PostMessages, PostPath, PostsError } from './post.constant';
 import { PostRdo } from './rdo/post.rdo';
-import { CommentService } from '../comment/comment.service';
-import { fillObject } from '../../../../../libs/util/util-core/src/lib/helpers'
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
-import { Post as PostModel} from '@prisma/client';
-import { PostQuery } from './query/post.query';
+import {
+  CreateLinkPostDto, CreatePhotoPostDto,
+  CreateQuotePostDto, CreateTextPostDto, CreateVideoPostDto,
+  UpdateLinkPostDto, UpdatePhotoPostDto,
+  UpdateQuotePostDto, UpdateTextPostDto, UpdateVideoPostDto, CreatePostContentDto, UpdatePostContentDto
+} from '@project/shared/shared-dto';
+import { adaptRdoPost } from '../../../../../libs/util/util-core/src/lib/adapt-rdo-post';
+import { CreatePostValidationPipe } from './pipes/create-post-validation.pipe';
+import { UpdatePostValidationPipe } from './pipes/update-post-validation.pipe';
+import { JwtAuthGuard } from '@project/util/util-core';
+import { TypePostValidationPipe } from './pipes/type-post-validation.pipe';
+import { RequestWithUserPayload } from '@project/shared/app-types';
 
-@Controller('posts')
+
+@ApiTags(API_TAG_NAME)
+@ApiExtraModels(CreateLinkPostDto, CreatePhotoPostDto, CreateQuotePostDto,
+  CreateTextPostDto,CreateVideoPostDto, UpdateLinkPostDto,
+  UpdatePhotoPostDto, UpdateQuotePostDto, UpdateTextPostDto,
+  UpdateVideoPostDto)
+@Controller(PostPath.Main)
 export class PostController {
   constructor(
-    private readonly postService: PostService,
-    private readonly commentService: CommentService
-  ) {}
+    private readonly postsService: PostService
+  ) { }
 
-  @Get('/:id')
-  async show(@Param('id') id: string): Promise<PostModel>{
-    const post = await this.postService.post({ postId: Number(id) });
-    return fillObject(PostRdo, post);
+  @ApiResponse({
+    type: PostRdo,
+    status: HttpStatus.CREATED,
+    description: PostMessages.Add,
+  })
+  @UseGuards(JwtAuthGuard)
+  @Post(PostPath.Add)
+  public async create(
+    @Req() { user }: RequestWithUserPayload,
+    @Body(TypePostValidationPipe, CreatePostValidationPipe)
+    dto: CreatePostContentDto) {
+    const userId = user.sub;
+    const post = await this.postsService.create(dto, userId);
+    return adaptRdoPost(post);
   }
 
-  @Get('/')
-  async index(@Query() query: PostQuery){
-    const post = await this.postService.find(query);
-    return fillObject(PostRdo, post);
+  @ApiResponse({
+    type: PostRdo,
+    status: HttpStatus.OK,
+    description: PostMessages.Update,
+  })
+  @UseGuards(JwtAuthGuard)
+  @Patch(PostPath.Id)
+  public async update(@Req() { user }: RequestWithUserPayload,
+    @Param('id') id: number,
+    @Body(TypePostValidationPipe, UpdatePostValidationPipe)
+    dto: UpdatePostContentDto) {
+    const userId = user.sub;
+    const post = await this.postsService.update(id, dto, userId);
+    return adaptRdoPost(post);
   }
 
-  @Post('/create')
-  async create(
-    @Body() dto: CreatePostDto ) {
-      const newPost = await this.postService.createPost(dto);
-    return fillObject(PostRdo, newPost);
+  @ApiResponse({
+    type: PostRdo,
+    status: HttpStatus.CREATED,
+    description: PostMessages.Update,
+  })
+  @UseGuards(JwtAuthGuard)
+  @Post(PostPath.Respost)
+  public async repost(@Param('id') id: number,
+    @Req() { user }: RequestWithUserPayload) {
+    const userId = user.sub;
+    const post = await this.postsService.repost(id, userId);
+    return adaptRdoPost(post);
   }
 
-  @Delete('/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async destroy(@Param('id') id: number) {
-    return this.postService.deletePost(id);
-  }
-
-  @Patch('/update/:id')
-  async update(@Param('id') id: string, dto: UpdatePostDto) {
-    const updatedPost = await this.postService.updatePost({
-      where: { postId: Number(id) },
-      data: { ...dto,
-        comments: {
-          connect: []
-        },
-       }
-    });
-    return fillObject(PostRdo, updatedPost);
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: PostMessages.Remove,
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: PostsError.Delete
+  })
+  @UseGuards(JwtAuthGuard)
+  @Delete(PostPath.Id)
+  public async delete(@Param('id') id: number,
+    @Req() { user }: RequestWithUserPayload) {
+    const userId = user.sub;
+    return await this.postsService.remove(id, userId);
   }
 }
-

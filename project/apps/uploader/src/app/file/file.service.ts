@@ -6,7 +6,7 @@ import { writeFile } from 'node:fs/promises';
 import dayjs from 'dayjs';
 import * as crypto from 'node:crypto';
 import { extension } from 'mime-types';
-import { FileRepository } from './file.repository';
+import { FileRepository } from '../../../../../libs/repositories/file-repository/src/lib/file.repository';
 import { FileEntity } from './file.entity';
 
 type WritedFile = {
@@ -25,7 +25,7 @@ export class FileService {
   ) {}
   private async writeFile(file: Express.Multer.File): Promise<WritedFile> {
     const [ year, month ] = dayjs().format('YYYY MM').split(' ');
-    const { uploadDirectory } = this.applicationConfig;
+    const uploadDirectory = this.applicationConfig.uploadDirectory;
     const subDirectory = `${year}/${month}`;
     const uuid = crypto.randomUUID();
     const fileExtension = extension(file.mimetype);

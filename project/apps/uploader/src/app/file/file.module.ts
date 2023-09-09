@@ -3,7 +3,7 @@ import { FileService } from './file.service';
 import { FileController } from './file.controller';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ConfigService } from '@nestjs/config';
-import { FileRepository } from './file.repository';
+import { FileRepository } from '../../../../../libs/repositories/file-repository/src/lib/file.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FileModel, FileSchema } from './file.model';
 

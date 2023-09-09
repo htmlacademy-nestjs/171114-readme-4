@@ -12,8 +12,8 @@ import { ConfigService } from '@nestjs/config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  const globalPrefix = configService.get('globalPrefix');
-  const port = configService.get('port');
+  const globalPrefix = configService.get('application.globalPrefix');
+  const port = configService.get('application.port');
   app.setGlobalPrefix(globalPrefix);
   await app.listen(port);
   Logger.log(

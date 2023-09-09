@@ -1,39 +1,59 @@
-import { PostStatus, PostType, PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '../../../../../node_modules/.prisma/client'
 
 const prisma = new PrismaClient();
 
+const post1: Prisma.PostCreateInput = {
+  userId:'1',
+  type: 'text',
+  title: 'Title test',
+  announcement: 'test test',
+  text: 'Long text',
+  status: 'published',
+  likesCount:1,
+  commentsCount:0,
+  likes: {
+    create: [
+      {
+        likedByUsersIds: ['2']
+      }
+    ]
+  }
+}
+const post2: Prisma.PostCreateInput = {
+  userId:'2',
+  type: 'text',
+  title: 'Title new test',
+  announcement: 'new test test',
+  text: 'Very long text',
+  status: 'published',
+  likesCount:1,
+  commentsCount:0,
+  likes: {
+    create: [
+      {
+        likedByUsersIds: ['2']
+      }
+    ]
+  }
+}
+
 async function fillDb() {
-  const first =  await prisma.post.upsert({
-    where: { postId: 1 },
-    update: {},
-    create: {
-      title: 'Книги',
-      author: '13',
-      content: 'Недавно прочитал страшный роман «Худеющий».',
-      status: PostStatus.published,
-      likesCount: 0,
-      repost: false,
-      type: PostType.text
-    },
+  await prisma.post.createMany({
+    data:[
+      post1,
+      post2
+    ]
   });
-  const second = await prisma.post.upsert({
-    where: { postId: 2 },
-    update: {},
-    create: {
-      title: 'Первый PC',
-      author: '13',
-      content: 'Первый PC появился в 2000-м году.',
-      status: PostStatus.draft,
-      likesCount: 0,
-      repost: false,
-      type: PostType.text
-    }
-  });
-  console.log({ first, second });
-  console.info('🤘️ Database was filled')
+  console.info('Database was filled')
 }
 
 fillDb()
-.catch(console.error)
-.finally(() => prisma.$disconnect());
+  .then(async () => {
+    await prisma.$disconnect()
+  })
+  .catch(async (err) => {
+    console.error(err);
+    await prisma.$disconnect()
 
+    process.exit(1);
+  })

@@ -8,5 +8,5 @@
     "target": "es2021"
   },
   "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"],
-  "include": ["src/**/*.ts", "../auth/src/app/authentication.constant.ts", "../auth/src/app/authentication/authentication.constant.ts"]
+  "include": ["src/**/*.ts", "../auth/src/app/authentication.constant.ts", "../auth/src/app/authentication/authentication.constant.ts", "../../libs/repositories/user-repository/src/lib/blog-user.repository.ts"]
 }

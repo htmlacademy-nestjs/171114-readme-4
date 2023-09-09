@@ -1,13 +1,12 @@
 import { Types } from 'mongoose';
 import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
-
-const BAD_MONGOID_ERROR = 'Bad entity ID';
+import { BAD_MONGOID_ERROR, MongoidValidationError, VALIDATION_ARGUMENT_TYPE } from './pipe.constant';
 
 @Injectable()
 export class MongoidValidationPipe implements PipeTransform {
   transform(value: string, { type }: ArgumentMetadata) {
-    if (type !== 'param') {
-      throw new Error('This pipe must used only with params!')
+    if (type !== VALIDATION_ARGUMENT_TYPE) {
+      throw new Error(MongoidValidationError.WrongType)
     }
 
     if (!Types.ObjectId.isValid(value)) {
